@@ -1,0 +1,14 @@
+# Suggesme - Uygulama Yapılandırması (örnek)
+# Bu dosyayı settings.toml olarak kopyalayıp düzenleyin.
+
+[app]
+name = "Suggesme"
+env = "development"
+debug = true
+
+[database]
+url = "sqlite:///data/suggesme.db"
+
+[logging]
+level = "INFO"
+file = "logs/suggesme.log"

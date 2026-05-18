@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Belgeler\\\\PYTHON\\\\projeler\\\\suggesme\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName | Sort-Object FullName)",
+      "Bash(python -c \"import sys; sys.path.insert\\(0, '.'\\); from src.utils.config import config; print\\('config OK'\\)\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}
