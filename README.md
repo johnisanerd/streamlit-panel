@@ -169,7 +169,7 @@ DATABASE_URL=sqlite:///data/suggesme.db
 
 # Apify (isteğe bağlı — boş bırakılırsa demo mod)
 APIFY_API_TOKEN=your_token_here
-APIFY_GOOGLE_MAPS_ACTOR_ID=compass/google-maps-scraper
+APIFY_GOOGLE_MAPS_ACTOR_ID=johnvc~google-maps-places-api
 APIFY_INSTAGRAM_ACTOR_ID=apify/instagram-scraper
 
 # n8n (isteğe bağlı — boş bırakılırsa demo mod)
@@ -297,7 +297,7 @@ python scripts/test_apify_maps.py "Hilton Istanbul" --max 3
 python scripts/test_apify_maps.py "Antalya Resort"
 ```
 
-Actor: `compass/google-maps-scraper` (varsayılan)
+Actor: `johnvc~google-maps-places-api` (varsayılan)
 Override: `.env` dosyasında `APIFY_GOOGLE_MAPS_ACTOR_ID` değişkeni
 
 ### Instagram Zenginleştirme

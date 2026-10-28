@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 # ─── Sabitler ─────────────────────────────────────────────────────────────────
 
 _APIFY_BASE  = "https://api.apify.com/v2"
-_DEFAULT_ACTOR = "compass/google-maps-scraper"
+_DEFAULT_ACTOR = "johnvc~google-maps-places-api"
 
 # ─── Konfigürasyon ────────────────────────────────────────────────────────────
 
@@ -47,10 +47,9 @@ def build_actor_input(query: str, max_results: int = 5) -> dict:
     Actor değişirse sadece bu fonksiyonu güncelleyin.
     """
     return {
-        "searchStringsArray":        [query],
-        "maxCrawledPlacesPerSearch": max_results,
+        "searchTerms":               [query],
+        "maxResultsPerSearch":       max(max_results, 20),  # actor en az 20 sonuç ister
         "language":                  "tr",
-        "countryCode":               "tr",
     }
 
 
@@ -60,17 +59,19 @@ def normalize_place(raw: dict) -> dict:
     Actor değişirse sadece bu fonksiyonu güncelleyin.
     """
     loc = raw.get("location") or {}
+    cid = raw.get("cid")
+    maps_url = f"https://maps.google.com/?cid={cid}" if cid else ""
     return {
         "name":            raw.get("title") or raw.get("name", ""),
         "address":         raw.get("address", ""),
-        "phone":           raw.get("phone", ""),
+        "phone":           raw.get("phone") or raw.get("phoneNumber", ""),
         "website":         raw.get("website", ""),
-        "google_maps_url": raw.get("url") or raw.get("googleMapsUrl", ""),
+        "google_maps_url": raw.get("url") or raw.get("googleMapsUrl") or maps_url,
         "rating":          raw.get("totalScore") or raw.get("rating"),
-        "review_count":    int(raw.get("reviewsCount") or raw.get("reviewCount") or 0),
-        "latitude":        loc.get("lat") or raw.get("lat"),
-        "longitude":       loc.get("lng") or raw.get("lng"),
-        "category":        raw.get("categoryName") or raw.get("category", ""),
+        "review_count":    int(raw.get("reviewsCount") or raw.get("reviewCount") or raw.get("ratingCount") or 0),
+        "latitude":        loc.get("lat") or raw.get("lat") or raw.get("latitude"),
+        "longitude":       loc.get("lng") or raw.get("lng") or raw.get("longitude"),
+        "category":        raw.get("categoryName") or raw.get("category") or raw.get("type", ""),
     }
 
 
@@ -105,7 +106,8 @@ def search_places(query: str, max_results: int = 5) -> list[dict]:
         )
         with urllib.request.urlopen(req, timeout=120) as resp:
             raw_list = json.loads(resp.read().decode("utf-8"))
-            return [normalize_place(p) for p in raw_list if p]
+            raw_list = [p for p in raw_list if p and not p.get("error_message")]
+            return [normalize_place(p) for p in raw_list][:max_results]
 
     except urllib.error.HTTPError as exc:
         body = ""
